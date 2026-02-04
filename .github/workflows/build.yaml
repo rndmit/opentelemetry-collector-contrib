@@ -33,7 +33,7 @@ jobs:
         run: |
           make genotelcontribcol
           make docker-otelcontribcol
-          docker tag otelcontribcol:latest otel/opentelemetry-collector-contrib-dev:latest
       - name: Push Docker Image
         run: |
+          docker tag otelcontribcol:latest otel/opentelemetry-collector-contrib-dev:latest
           docker push ghcr.io/rndmit/opentelemetry-collector-contrib/otelcontribcol:latest

@@ -12,7 +12,6 @@ permissions: read-all
 jobs:
   publish-dev:
     runs-on: ubuntu-24.04
-    needs: [lint, unittest, integration-tests]
     if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6

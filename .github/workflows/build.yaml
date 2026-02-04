@@ -23,14 +23,17 @@ jobs:
       - name: Mkdir bin and dist
         run: |
           mkdir bin/ dist/
+      - name: Login to ghcr
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Docker Image
         run: |
           make genotelcontribcol
-          ./bin/otelcontribcol_linux_amd64 ./cmd/otelcontribcol/otelcontribcol
-      - name: Push onelcontribcol to Github packages
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
-        with:
-          context: cmd/otelcontribcol
-          push: true
-          tags: ghcr.io/rndmit/opentelemetry-collector-contrib/telemetrygen:latest
-          platforms: linux/amd64,linux/arm64,linux/s390x,linux/ppc64le,linux/riscv64
+          make docker-otelcontribcol
+          docker tag otelcontribcol:latest otel/opentelemetry-collector-contrib-dev:latest
+      - name: Push Docker Image
+        run: |
+          docker push ghcr.io/rndmit/opentelemetry-collector-contrib/otelcontribcol:latest

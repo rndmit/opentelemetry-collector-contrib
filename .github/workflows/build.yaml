@@ -1,0 +1,37 @@
+name: build-and-test
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  merge_group:
+  pull_request:
+
+permissions: read-all
+
+jobs:
+  publish-dev:
+    runs-on: ubuntu-24.04
+    needs: [lint, unittest, integration-tests]
+    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'open-telemetry/opentelemetry-collector-contrib'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: ./.github/actions/setup-go-tools
+        with:
+          go-version: oldstable
+          gomoddownload: "false"
+          install-tools: "false"
+      - name: Mkdir bin and dist
+        run: |
+          mkdir bin/ dist/
+      - name: Build Docker Image
+        run: |
+          make genotelcontribcol
+          ./bin/otelcontribcol_linux_amd64 ./cmd/otelcontribcol/otelcontribcol
+      - name: Push onelcontribcol to Github packages
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        with:
+          context: cmd/otelcontribcol
+          push: true
+          tags: ghcr.io/rndmit/opentelemetry-collector-contrib/telemetrygen:latest
+          platforms: linux/amd64,linux/arm64,linux/s390x,linux/ppc64le,linux/riscv64

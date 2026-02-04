@@ -7,6 +7,8 @@ properties:
     type: array
     items:
       $ref: go.opentelemetry.io/collector/config/confignet.tcp_addr_config
+  use_srv:
+    type: boolean
   password:
     $ref: go.opentelemetry.io/collector/config/configopaque.string
   replica_set:

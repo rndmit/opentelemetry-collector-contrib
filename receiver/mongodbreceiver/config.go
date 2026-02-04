@@ -28,6 +28,7 @@ type Config struct {
 	metadata.MetricsBuilderConfig `mapstructure:",squash"`
 	// Deprecated - Transport option will be removed in v0.102.0
 	Hosts            []confignet.TCPAddrConfig `mapstructure:"hosts"`
+	UseSRV           bool                      `mapstructure:"use_srv"`
 	Username         string                    `mapstructure:"username"`
 	Password         configopaque.String       `mapstructure:"password"`
 	ReplicaSet       string                    `mapstructure:"replica_set,omitempty"`
@@ -82,7 +83,14 @@ func (c *Config) ClientOptions(secondary bool) *options.ClientOptions {
 		return clientOptions
 	}
 	clientOptions := options.Client()
-	connString := "mongodb://" + strings.Join(c.hostlist(), ",")
+
+	var schema string
+	if c.UseSRV {
+		schema = "mongodb+srv://"
+	} else {
+		schema = "mongodb://"
+	}
+	connString := schema + strings.Join(c.hostlist(), ",")
 	clientOptions.ApplyURI(connString)
 
 	if c.Timeout > 0 {
